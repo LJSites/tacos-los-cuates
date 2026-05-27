@@ -1,0 +1,1364 @@
+<!--
+  ARCHETYPE: Neon Taquería at Night
+  STRUCTURAL DECISIONS:
+  - Hero: Full-bleed dark split — left half is a vertical neon-glowing wordmark stack,
+    right half is a cropped photo with a hot-pink neon-glow vignette. No centered overlay.
+  - Nav: Minimal fixed top bar — business name left, raw phone number right, no hamburger menu text.
+  - Menu: Horizontal scrolling "ticker tape" category nav above a 2-col asymmetric item grid
+    (large feature card left, 2 stacked smaller right).
+  - CTA: "Call Now" — anchored tel: link. First instance in hero, second after hours section.
+  - Testimonies: Vertical staggered strip — alternating left/right quote blocks, no cards,
+    no avatars, no stars. First name + last initial only.
+  - Hours + Map: Side-by-side on dark panel — hours as a raw typographic table,
+    map iframe as a dimly bordered embed beside it.
+  - Animation: One trick only — neon flicker keyframe on the hero wordmark. Nothing else animates.
+  - Footer: Dark charcoal strip with social icon-labels (text only, styled) + designer credit.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tacos Los Cuates — Late Night Street Tacos · Arcadia, CA</title>
+  <meta name="description" content="Tacos Los Cuates — authentic street tacos, al pastor trompo, carne asada, and more. Open late in Arcadia, CA. Call (323) 907-8047." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Barlow:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    /* =========================================
+       DESIGN TOKENS
+    ========================================= */
+    :root {
+      --bg:        #0f0f0f;
+      --bg-2:      #161616;
+      --bg-3:      #1c1c1c;
+      --panel:     #121212;
+      --neon-pink: #ff2d78;
+      --neon-lime: #b8ff3a;
+      --neon-amber:#ffb600;
+      --neon-pink-dim: rgba(255,45,120,0.18);
+      --neon-lime-dim: rgba(184,255,58,0.12);
+      --text:      #e8e2d6;
+      --text-muted:#7a7169;
+      --text-dim:  #4a453f;
+      --border:    rgba(255,255,255,0.06);
+      --ff-display: 'Barlow Condensed', sans-serif;
+      --ff-body:    'Barlow', sans-serif;
+      --ff-mono:    'Space Mono', monospace;
+    }
+
+    /* =========================================
+       RESET & BASE
+    ========================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--ff-body);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    img { display: block; max-width: 100%; height: auto; }
+    a { color: inherit; text-decoration: none; }
+
+    /* =========================================
+       NAV
+    ========================================= */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(1rem, 4vw, 2.5rem);
+      height: 56px;
+      background: rgba(10,10,10,0.82);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav__brand {
+      font-family: var(--ff-display);
+      font-weight: 900;
+      font-size: 1.15rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--neon-pink);
+      text-shadow: 0 0 14px rgba(255,45,120,0.6);
+    }
+
+    .nav__links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav__links a {
+      font-family: var(--ff-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .nav__links a:hover { color: var(--neon-lime); }
+
+    .nav__cta {
+      font-family: var(--ff-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--neon-pink);
+      padding: 0.35rem 0.9rem;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    .nav__cta:hover {
+      background: #ff5599;
+      box-shadow: 0 0 18px rgba(255,45,120,0.55);
+    }
+
+    /* =========================================
+       HERO — SPLIT LAYOUT
+    ========================================= */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100svh;
+      padding-top: 56px;
+    }
+
+    .hero__left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(2rem, 6vw, 5rem) clamp(1.5rem, 5vw, 4.5rem);
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* subtle radial glow behind text */
+    .hero__left::before {
+      content: '';
+      position: absolute;
+      top: 30%; left: -10%;
+      width: 60%; height: 60%;
+      background: radial-gradient(ellipse at center, rgba(255,45,120,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero__eyebrow {
+      font-family: var(--ff-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--neon-lime);
+      margin-bottom: 1.2rem;
+    }
+
+    .hero__wordmark {
+      font-family: var(--ff-display);
+      font-weight: 900;
+      font-size: clamp(4rem, 9vw, 8.5rem);
+      line-height: 0.88;
+      text-transform: uppercase;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      animation: neon-flicker 6s infinite;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero__wordmark span {
+      display: block;
+      color: var(--neon-pink);
+      text-shadow:
+        0 0 10px rgba(255,45,120,0.9),
+        0 0 30px rgba(255,45,120,0.55),
+        0 0 60px rgba(255,45,120,0.25);
+    }
+
+    @keyframes neon-flicker {
+      0%,  19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        text-shadow:
+          0 0 10px rgba(255,45,120,0.9),
+          0 0 30px rgba(255,45,120,0.55),
+          0 0 60px rgba(255,45,120,0.25);
+      }
+      20%, 24%, 55% {
+        text-shadow: none;
+        color: rgba(255,45,120,0.4);
+      }
+    }
+
+    .hero__tagline {
+      font-family: var(--ff-display);
+      font-weight: 400;
+      font-style: italic;
+      font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+      color: var(--text-muted);
+      margin-top: 1.4rem;
+      margin-bottom: 2.4rem;
+      letter-spacing: 0.02em;
+    }
+
+    .hero__details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 2.8rem;
+    }
+
+    .hero__detail {
+      font-family: var(--ff-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .hero__detail strong {
+      color: var(--neon-amber);
+      font-weight: 700;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      font-family: var(--ff-display);
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--neon-pink);
+      padding: 0.85rem 2.2rem;
+      border: none;
+      cursor: pointer;
+      align-self: flex-start;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+
+    .btn-primary:hover {
+      background: #ff5599;
+      box-shadow: 0 0 28px rgba(255,45,120,0.6), 0 0 60px rgba(255,45,120,0.2);
+      transform: translateY(-1px);
+    }
+
+    /* Hero right — photo panel */
+    .hero__right {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero__right img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      filter: brightness(0.75) saturate(1.1);
+    }
+
+    /* neon vignette overlay */
+    .hero__right::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to right, var(--bg) 0%, transparent 30%),
+        linear-gradient(to top, rgba(255,45,120,0.18) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* thin neon border lines */
+    .hero__right::before {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0; left: 0;
+      width: 3px;
+      background: linear-gradient(to bottom, transparent, var(--neon-pink), transparent);
+      z-index: 2;
+    }
+
+    /* =========================================
+       SECTION SHARED
+    ========================================= */
+    .section {
+      padding: clamp(4rem, 8vw, 7rem) clamp(1.5rem, 6vw, 5rem);
+    }
+
+    .section-label {
+      font-family: var(--ff-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--neon-lime);
+      margin-bottom: 0.8rem;
+    }
+
+    .section-heading {
+      font-family: var(--ff-display);
+      font-weight: 900;
+      font-size: clamp(2.6rem, 5vw, 4.5rem);
+      text-transform: uppercase;
+      line-height: 0.92;
+      letter-spacing: -0.01em;
+    }
+
+    /* =========================================
+       ABOUT
+    ========================================= */
+    .about {
+      background: var(--bg-2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .about__inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(2rem, 5vw, 5rem);
+      align-items: center;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .about__copy { }
+
+    .about__copy p {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-top: 1.5rem;
+    }
+
+    .about__copy p + p { margin-top: 1rem; }
+
+    .about__img-stack {
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: 0.5rem;
+    }
+
+    .about__img-main {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      filter: brightness(0.85) saturate(1.1);
+    }
+
+    .about__img-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .about__img-pair img {
+      width: 100%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      filter: brightness(0.8) saturate(1.1);
+    }
+
+    /* =========================================
+       MENU
+    ========================================= */
+    .menu {
+      background: var(--bg);
+    }
+
+    .menu__header {
+      max-width: 1280px;
+      margin: 0 auto 2rem;
+    }
+
+    .menu__heading {
+      margin-top: 0.5rem;
+    }
+
+    /* Category strip */
+    .menu__cats {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin-top: 2rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      max-width: 1280px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .menu__cats::-webkit-scrollbar { display: none; }
+
+    .menu__cat {
+      flex-shrink: 0;
+      font-family: var(--ff-display);
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0.75rem 1.6rem;
+      border-right: 1px solid var(--border);
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+
+    .menu__cat:first-child { border-left: 1px solid var(--border); }
+    .menu__cat:hover { color: var(--text); background: var(--bg-3); }
+    .menu__cat.active { color: var(--neon-pink); background: var(--neon-pink-dim); }
+
+    /* Grid */
+    .menu__grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 1px;
+      background: var(--border);
+      max-width: 1280px;
+      margin: 1px auto 0;
+    }
+
+    .menu__item {
+      background: var(--bg-2);
+      padding: clamp(1.5rem, 3vw, 2.5rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      position: relative;
+      overflow: hidden;
+      min-height: 220px;
+    }
+
+    .menu__item--feature {
+      grid-row: span 2;
+      min-height: 460px;
+    }
+
+    .menu__item img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.55) saturate(1.2);
+    }
+
+    .menu__item-body {
+      position: relative;
+      z-index: 1;
+    }
+
+    .menu__item-name {
+      font-family: var(--ff-display);
+      font-weight: 900;
+      font-size: clamp(1.5rem, 3vw, 2.4rem);
+      text-transform: uppercase;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+
+    .menu__item-desc {
+      font-size: 0.88rem;
+      color: rgba(232,226,214,0.65);
+      margin-top: 0.5rem;
+      line-height: 1.5;
+    }
+
+    .menu__item-tag {
+      display: inline-block;
+      font-family: var(--ff-mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--neon-lime);
+      border: 1px solid var(--neon-lime);
+      padding: 0.18rem 0.55rem;
+      margin-bottom: 0.8rem;
+    }
+
+    /* full menu text section */
+    .menu__full {
+      max-width: 1280px;
+      margin: 3rem auto 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+    }
+
+    .menu__full-col h4 {
+      font-family: var(--ff-display);
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--neon-amber);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .menu__full-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .menu__full-col li {
+      font-family: var(--ff-display);
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
+
+    .menu__full-col li::before {
+      content: '— ';
+      color: var(--text-dim);
+    }
+
+    /* =========================================
+       HOURS + MAP
+    ========================================= */
+    .location {
+      background: var(--panel);
+      border-top: 1px solid var(--border);
+    }
+
+    .location__inner {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: clamp(2rem, 5vw, 5rem);
+      align-items: start;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .location__hours-label {
+      margin-bottom: 2rem;
+    }
+
+    .hours-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .hours-table tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hours-table tr:last-child {
+      border-bottom: none;
+    }
+
+    .hours-table td {
+      padding: 0.65rem 0;
+      font-family: var(--ff-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+    }
+
+    .hours-table .day {
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding-right: 2rem;
+    }
+
+    .hours-table .time {
+      color: var(--text);
+      text-align: right;
+    }
+
+    .hours-table .time--late {
+      color: var(--neon-amber);
+    }
+
+    .hours-open-badge {
+      display: inline-block;
+      font-family: var(--ff-mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--neon-lime);
+      border: 1px solid var(--neon-lime);
+      padding: 0.2rem 0.6rem;
+      margin-top: 1.5rem;
+    }
+
+    .location__cta {
+      margin-top: 2rem;
+    }
+
+    .location__map-side {}
+
+    .location__map-label {
+      margin-bottom: 1.5rem;
+    }
+
+    .map-frame {
+      width: 100%;
+      aspect-ratio: 4/3;
+      border: 1px solid var(--border);
+      filter: grayscale(0.4) brightness(0.85);
+    }
+
+    .location__address {
+      font-family: var(--ff-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      margin-top: 0.75rem;
+    }
+
+    /* =========================================
+       GALLERY STRIP
+    ========================================= */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+
+    .gallery__cell {
+      aspect-ratio: 1/1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .gallery__cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.7) saturate(1.15);
+      transition: filter 0.3s, transform 0.4s;
+    }
+
+    .gallery__cell:hover img {
+      filter: brightness(0.9) saturate(1.3);
+      transform: scale(1.04);
+    }
+
+    /* =========================================
+       TESTIMONIES
+    ========================================= */
+    .testimonies {
+      background: var(--bg-2);
+      border-top: 1px solid var(--border);
+    }
+
+    .testimonies__inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .testimonies__header {
+      margin-bottom: 3.5rem;
+    }
+
+    /* Staggered strip */
+    .testimony-strip {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .testimony {
+      padding: 2.5rem 0;
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .testimony:last-child { border-bottom: none; }
+
+    .testimony--right .testimony__quote { grid-column: 2; }
+    .testimony--right .testimony__meta { grid-column: 1; grid-row: 1; align-self: end; text-align: right; }
+
+    .testimony--left .testimony__quote { grid-column: 1; }
+    .testimony--left .testimony__meta { grid-column: 2; grid-row: 1; align-self: end; }
+
+    .testimony__quote {
+      font-family: var(--ff-display);
+      font-weight: 400;
+      font-style: italic;
+      font-size: clamp(1.1rem, 2vw, 1.45rem);
+      line-height: 1.55;
+      color: var(--text);
+      position: relative;
+    }
+
+    .testimony__quote::before {
+      content: '\201C';
+      font-family: var(--ff-display);
+      font-size: 4rem;
+      line-height: 0;
+      color: var(--neon-pink);
+      opacity: 0.5;
+      position: absolute;
+      top: 0.6rem;
+      left: -0.5rem;
+      pointer-events: none;
+    }
+
+    .testimony__meta {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 0.2rem;
+    }
+
+    .testimony__name {
+      font-family: var(--ff-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--neon-amber);
+    }
+
+    .testimony__handle {
+      font-family: var(--ff-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+    }
+
+    /* =========================================
+       CONTACT STRIP
+    ========================================= */
+    .contact-strip {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .contact-strip__inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .contact-strip__headline {
+      font-family: var(--ff-display);
+      font-weight: 900;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      text-transform: uppercase;
+      line-height: 0.95;
+    }
+
+    .contact-strip__headline em {
+      color: var(--neon-pink);
+      font-style: normal;
+      text-shadow: 0 0 20px rgba(255,45,120,0.4);
+    }
+
+    .contact-strip__right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 1rem;
+    }
+
+    .contact-strip__phone {
+      font-family: var(--ff-display);
+      font-weight: 700;
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      letter-spacing: 0.04em;
+      color: var(--text);
+    }
+
+    /* =========================================
+       FOOTER
+    ========================================= */
+    .footer {
+      background: #0a0a0a;
+      padding: 3rem clamp(1.5rem, 6vw, 5rem);
+    }
+
+    .footer__inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .footer__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .footer__brand {
+      font-family: var(--ff-display);
+      font-weight: 900;
+      font-size: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+    }
+
+    .footer__socials {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .footer__social-link {
+      font-family: var(--ff-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--text-dim);
+      padding-bottom: 1px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .footer__social-link:hover {
+      color: var(--neon-lime);
+      border-color: var(--neon-lime);
+    }
+
+    .footer__bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer__credit {
+      font-family: var(--ff-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+    }
+
+    .footer__credit a {
+      color: var(--neon-pink);
+      opacity: 0.7;
+      border-bottom: 1px solid rgba(255,45,120,0.3);
+      transition: opacity 0.2s;
+    }
+
+    .footer__credit a:hover { opacity: 1; }
+
+    .footer__address {
+      font-family: var(--ff-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      text-align: right;
+    }
+
+    /* =========================================
+       RESPONSIVE
+    ========================================= */
+
+    /* Tablet */
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .hero__left {
+        padding: 3rem 1.5rem 2.5rem;
+        min-height: 70svh;
+      }
+
+      .hero__right {
+        height: 45vw;
+        min-height: 260px;
+      }
+
+      .hero__right::before { display: none; }
+      .hero__right::after {
+        background: linear-gradient(to bottom, transparent 60%, var(--bg) 100%);
+      }
+
+      .about__inner {
+        grid-template-columns: 1fr;
+      }
+
+      .menu__grid {
+        grid-template-columns: 1fr;
+      }
+
+      .menu__item--feature {
+        grid-row: auto;
+        min-height: 320px;
+      }
+
+      .location__inner {
+        grid-template-columns: 1fr;
+      }
+
+      .gallery {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .testimony {
+        grid-template-columns: 1fr;
+      }
+
+      .testimony--right .testimony__quote,
+      .testimony--left .testimony__quote { grid-column: 1; }
+
+      .testimony--right .testimony__meta { grid-column: 1; grid-row: 2; text-align: left; }
+      .testimony--left .testimony__meta { grid-column: 1; grid-row: 2; }
+
+      .contact-strip__inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .contact-strip__right {
+        align-items: flex-start;
+      }
+
+      .nav__links {
+        display: none;
+      }
+    }
+
+    /* Mobile */
+    @media (max-width: 560px) {
+      .gallery {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .menu__full {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .footer__top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .footer__bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .footer__address { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <header class="nav">
+    <span class="nav__brand">Tacos Los Cuates</span>
+    <nav aria-label="Primary">
+      <ul class="nav__links">
+        <li><a href="#menu">Menu</a></li>
+        <li><a href="#hours">Hours</a></li>
+        <li><a href="#words">Words</a></li>
+      </ul>
+    </nav>
+    <a class="nav__cta" href="tel:+13239078047">Call Now</a>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero__left">
+      <p class="hero__eyebrow">Arcadia, CA — Est. Late Night</p>
+      <h1 class="hero__wordmark">
+        Tacos<br/>
+        <span>Los</span><br/>
+        Cuates
+      </h1>
+      <p class="hero__tagline">Street tacos. Trompo al pastor. Open late.</p>
+      <div class="hero__details">
+        <p class="hero__detail"><strong>Mon–Thu &amp; Sun</strong> &nbsp;5 PM – Midnight</p>
+        <p class="hero__detail"><strong>Fri &amp; Sat</strong> &nbsp;5 PM – 1 AM</p>
+        <p class="hero__detail"><strong>Peck Rd</strong> &nbsp;at Lower Azusa, Arcadia</p>
+      </div>
+      <a class="btn-primary" href="tel:+13239078047">Call Now &rarr;</a>
+    </div>
+    <div class="hero__right" aria-hidden="true">
+      <img
+        src="https://lh3.googleusercontent.com/place-photos/AJRVUZN9yG5eVVrhhWIeXKXcS_gczcdv7-yp3lM1fo9flAim8j6yYdtEdcOH142D2HLm5A2IDD7kpoHaehyXkq9Qt4FWbVzQwQEzsQRxw3Ti8-lbcEXkn2SJ9Zcuo9Ofljz090DjHUaT6SlZDc5a=s4800-w1600"
+        alt="Tacos Los Cuates — street tacos"
+        loading="eager"
+      />
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about section" id="about">
+    <div class="about__inner">
+      <div class="about__copy">
+        <p class="section-label">Who We Are</p>
+        <h2 class="section-heading">The real<br/>deal trompo.</h2>
+        <p>
+          Tacos Los Cuates is Arcadia's late-night street taco spot — the kind of place where a
+          spinning trompo of al pastor glows in the dark and the tortillas are pressed by hand
+          to order. We set up on Peck Road every evening and don't close until the neighborhood
+          has eaten well.
+        </p>
+        <p>
+          Our menu runs deep: carne asada, al pastor, buche, cabeza, chorizo, pollo, and more.
+          Load your tray at the salsa bar — pico de gallo, cucumbers, radishes, multiple salsas —
+          and wash it all down with a fresh agua fresca or horchata. Simple. Honest. Delicious.
+        </p>
+      </div>
+      <div class="about__img-stack">
+        <img
+          class="about__img-main"
+          src="https://lh3.googleusercontent.com/place-photos/AJRVUZOy6yJtHsOjF3r8o_WokedrzuLC9JrCWw5AgVdavXb19YmJFZYx196zsdrY_pR36dBjYkS6UhWwE-4xDwsWOKfyihgNcDOsT4pBNIefl6PS4hSmpc59C44gNJkcbVMbj5yQ3spVFgB6S-yv9k8=s4800-w1600"
+          alt="Tacos Los Cuates food"
+          loading="lazy"
+        />
+        <div class="about__img-pair">
+          <img
+            src="https://lh3.googleusercontent.com/place-photos/AJRVUZOIKV73_GEZSRjd7rPx1zsypC4zreo9JKcw6_GaVALRg9ZbPdN8angWis35wjK9dBsY1r9-GD27gws60TDxNcmMkbozjs56omspk68z8hk5NcuwxEaUnDVAB4H6a2jHe1EknTJBmM7r3knzrQ=s4800-w1600"
+            alt="Tacos Los Cuates — tacos close up"
+            loading="lazy"
+          />
+          <img
+            src="https://lh3.googleusercontent.com/place-photos/AJRVUZN-yG2nxEFkxxwdtdzYcsPskYu9xOVoNz_8mT4WUNF4NkXRnmg3lgx4EIO_f-LLfOFb8qXyxoFEl36TrfawPjaDz3xSf-4_eME3BPQAm5ETYRZH38S4Kwup2YWbQQ5l8V-ft5KHlhCeYUGs8cs=s4800-w1600"
+            alt="Tacos Los Cuates — fresh ingredients"
+            loading="lazy"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MENU -->
+  <section class="menu section" id="menu">
+    <div class="menu__header">
+      <p class="section-label">What We're Serving</p>
+      <h2 class="section-heading menu__heading">The Spread</h2>
+    </div>
+
+    <!-- Category nav strip -->
+    <nav class="menu__cats" aria-label="Menu categories">
+      <span class="menu__cat active">Tacos</span>
+      <span class="menu__cat">Burritos</span>
+      <span class="menu__cat">Drinks</span>
+      <span class="menu__cat">Sides</span>
+      <span class="menu__cat">Specials</span>
+    </nav>
+
+    <!-- Feature grid -->
+    <div class="menu__grid">
+      <!-- Feature card: Al Pastor -->
+      <article class="menu__item menu__item--feature">
+        <img
+          src="https://lh3.googleusercontent.com/place-photos/AJRVUZNqJubmLA-OjXcV9sXWYXTaOBVEbTyLhH1n90OsoiGU7G7ATEt1BysmJoYYwKOJl5qASLHGV-2Tnqxjp8SiwHXCdd7RPksZnZmgwHC4y-dKzIaxEqgaEe9bcYv2MNnFwmbypC2wzTp02SYrZ2stRpquFw=s4800-w1600"
+          alt="Al Pastor taco"
+          loading="lazy"
+        />
+        <div class="menu__item-body">
+          <span class="menu__item-tag">Signature</span>
+          <h3 class="menu__item-name">Al Pastor</h3>
+          <p class="menu__item-desc">
+            Marinated pork slow-spun on our trompo, shaved to order with a slice of pineapple.
+            On a hand-pressed corn tortilla.
+          </p>
+        </div>
+      </article>
+
+      <!-- Small card: Carne Asada -->
+      <article class="menu__item">
+        <img
+          src="https://lh3.googleusercontent.com/place-photos/AJRVUZPUgppPsbZHQj6-fLNikUCN95rkgamanri338sIaRpnB0GB9XTa7t47XlgqZXs2MqlOxnoN4hiUlKEFci0Xb0aL5d_Q-buYs9V71u0-YSueJshahMSF8D33zfgJPTG2hZJkRInh15do_eynL6ucmu99SA=s4800-w1600"
+          alt="Carne Asada taco"
+          loading="lazy"
+        />
+        <div class="menu__item-body">
+          <span class="menu__item-tag">Fan Favorite</span>
+          <h3 class="menu__item-name">Carne Asada</h3>
+          <p class="menu__item-desc">Grilled, chopped, and piled high. Cilantro, onion, salsa.</p>
+        </div>
+      </article>
+
+      <!-- Small card: The Burrito -->
+      <article class="menu__item">
+        <img
+          src="https://source.unsplash.com/featured/?burrito,mexican-food"
+          alt="Burrito"
+          loading="lazy"
+          onerror="this.src='https://source.unsplash.com/featured/?taco,street-food'"
+        />
+        <div class="menu__item-body">
+          <span class="menu__item-tag">Loaded</span>
+          <h3 class="menu__item-name">El Burrito</h3>
+          <p class="menu__item-desc">Big. Stuffed with your choice of meat, beans, rice, and cheese.</p>
+        </div>
+      </article>
+    </div>
+
+    <!-- Full menu text list -->
+    <div class="menu__full">
+      <div class="menu__full-col">
+        <h4>Meats</h4>
+        <ul>
+          <li>Al Pastor</li>
+          <li>Carne Asada</li>
+          <li>Pollo</li>
+          <li>Chorizo</li>
+          <li>Buche</li>
+          <li>Cabeza</li>
+        </ul>
+      </div>
+      <div class="menu__full-col">
+        <h4>Dishes</h4>
+        <ul>
+          <li>Tacos</li>
+          <li>Burritos</li>
+          <li>Quesadillas</li>
+        </ul>
+      </div>
+      <div class="menu__full-col">
+        <h4>Salsa Bar</h4>
+        <ul>
+          <li>Pico de Gallo</li>
+          <li>Cucumbers</li>
+          <li>Radishes</li>
+          <li>Green Salsa</li>
+          <li>Red Salsa</li>
+        </ul>
+      </div>
+      <div class="menu__full-col">
+        <h4>Drinks</h4>
+        <ul>
+          <li>Horchata</li>
+          <li>Agua de Pepino</li>
+          <li>Aguas Frescas</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY STRIP -->
+  <div class="gallery" aria-hidden="true">
+    <div class="gallery__cell">
+      <img
+        src="https://lh3.googleusercontent.com/place-photos/AJRVUZN9yG5eVVrhhWIeXKXcS_gczcdv7-yp3lM1fo9flAim8j6yYdtEdcOH142D2HLm5A2IDD7kpoHaehyXkq9Qt4FWbVzQwQEzsQRxw3Ti8-lbcEXkn2SJ9Zcuo9Ofljz090DjHUaT6SlZDc5a=s4800-w1600"
+        alt=""
+        loading="lazy"
+      />
+    </div>
+    <div class="gallery__cell">
+      <img
+        src="https://lh3.googleusercontent.com/place-photos/AJRVUZOy6yJtHsOjF3r8o_WokedrzuLC9JrCWw5AgVdavXb19YmJFZYx196zsdrY_pR36dBjYkS6UhWwE-4xDwsWOKfyihgNcDOsT4pBNIefl6PS4hSmpc59C44gNJkcbVMbj5yQ3spVFgB6S-yv9k8=s4800-w1600"
+        alt=""
+        loading="lazy"
+      />
+    </div>
+    <div class="gallery__cell">
+      <img
+        src="https://lh3.googleusercontent.com/place-photos/AJRVUZOIKV73_GEZSRjd7rPx1zsypC4zreo9JKcw6_GaVALRg9ZbPdN8angWis35wjK9dBsY1r9-GD27gws60TDxNcmMkbozjs56omspk68z8hk5NcuwxEaUnDVAB4H6a2jHe1EknTJBmM7r3knzrQ=s4800-w1600"
+        alt=""
+        loading="lazy"
+      />
+    </div>
+    <div class="gallery__cell">
+      <img
+        src="https://lh3.googleusercontent.com/place-photos/AJRVUZNqJubmLA-OjXcV9sXWYXTaOBVEbTyLhH1n90OsoiGU7G7ATEt1BysmJoYYwKOJl5qASLHGV-2Tnqxjp8SiwHXCdd7RPksZnZmgwHC4y-dKzIaxEqgaEe9bcYv2MNnFwmbypC2wzTp02SYrZ2stRpquFw=s4800-w1600"
+        alt=""
+        loading="lazy"
+      />
+    </div>
+  </div>
+
+  <!-- HOURS + MAP -->
+  <section class="location section" id="hours">
+    <div class="location__inner">
+      <div class="location__hours-col">
+        <div class="location__hours-label">
+          <p class="section-label">Find Us</p>
+          <h2 class="section-heading">Hours</h2>
+        </div>
+        <table class="hours-table">
+          <tbody>
+            <tr>
+              <td class="day">Mon</td>
+              <td class="time">5:00 PM – 12:00 AM</td>
+            </tr>
+            <tr>
+              <td class="day">Tue</td>
+              <td class="time">5:00 PM – 12:00 AM</td>
+            </tr>
+            <tr>
+              <td class="day">Wed</td>
+              <td class="time">5:00 PM – 12:00 AM</td>
+            </tr>
+            <tr>
+              <td class="day">Thu</td>
+              <td class="time">5:00 PM – 12:00 AM</td>
+            </tr>
+            <tr>
+              <td class="day">Fri</td>
+              <td class="time time--late">5:00 PM – 1:00 AM</td>
+            </tr>
+            <tr>
+              <td class="day">Sat</td>
+              <td class="time time--late">5:00 PM – 1:00 AM</td>
+            </tr>
+            <tr>
+              <td class="day">Sun</td>
+              <td class="time">5:00 PM – 12:00 AM</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="hours-open-badge">Open every night</div>
+        <div class="location__cta">
+          <a class="btn-primary" href="https://maps.google.com/?cid=12366110964083444934&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA" target="_blank" rel="noopener">Get Directions &rarr;</a>
+        </div>
+        <p style="margin-top:1.2rem; font-family:var(--ff-mono); font-size:0.62rem; letter-spacing:0.06em; color:var(--text-dim);">
+          Find us on:
+          &nbsp;<a href="https://maps.google.com/?cid=12366110964083444934&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA" target="_blank" rel="noopener" style="color:var(--neon-lime); border-bottom:1px solid currentColor;">Google Maps</a>
+        </p>
+      </div>
+      <div class="location__map-side">
+        <div class="location__map-label">
+          <p class="section-label">Location</p>
+          <h2 class="section-heading" style="font-size:clamp(1.8rem,3vw,2.8rem);">Peck &amp; Lower Azusa</h2>
+        </div>
+        <iframe
+          class="map-frame"
+          src="https://www.google.com/maps?q=5538+Peck+Rd%2C+Arcadia%2C+CA+91006%2C+USA&output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Tacos Los Cuates location map"
+          frameborder="0"
+          allowfullscreen
+        ></iframe>
+        <p class="location__address">5538 Peck Rd, Arcadia, CA 91006</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIES -->
+  <section class="testimonies section" id="words">
+    <div class="testimonies__inner">
+      <div class="testimonies__header">
+        <p class="section-label">From The People</p>
+        <h2 class="section-heading">In Their<br/>Words</h2>
+      </div>
+
+      <div class="testimony-strip">
+
+        <article class="testimony testimony--left">
+          <blockquote class="testimony__quote">
+            Phenomenal Al Pastor and great Carne Asada. Burritos are big and stuffed with your choice of meat with beans, rice and cheese. Tacos are great and the salsas were all good and spicy. Quick service and worth the money.
+          </blockquote>
+          <div class="testimony__meta">
+            <span class="testimony__name">Angel S.</span>
+          </div>
+        </article>
+
+        <article class="testimony testimony--right">
+          <blockquote class="testimony__quote">
+            Solid spot for late night tacos. Love that they have a trompo for Al pastor. Asada and Al pastor were the stand outs. Didn't seem very expensive — about $25, $30 with tip for a burrito, 8 tacos, and a large horchata. Service was efficient and quick.
+          </blockquote>
+          <div class="testimony__meta">
+            <span class="testimony__name">David C.</span>
+          </div>
+        </article>
+
+        <article class="testimony testimony--left">
+          <blockquote class="testimony__quote">
+            This taco stand gets my top vote. The tacos are delicious — comparable to the ones I get in San Diego. For less than $3, you get an authentic Mexican taco with various fillings. The tortillas are hand-made on site and the line tends to get long but they complete an order very quickly.
+          </blockquote>
+          <div class="testimony__meta">
+            <span class="testimony__name">Regis K.</span>
+          </div>
+        </article>
+
+        <article class="testimony testimony--right">
+          <blockquote class="testimony__quote">
+            Tacos Los Cuates has the best street tacos! I love getting their asada, pollo, and pastor tacos. Each pastor taco comes with a slice of pineapple — a sweet touch. On Taco Tuesday, each taco is only $1. Go early because the line can get pretty long due to popularity.
+          </blockquote>
+          <div class="testimony__meta">
+            <span class="testimony__name">Eileen W.</span>
+          </div>
+        </article>
+
+        <article class="testimony testimony--left">
+          <blockquote class="testimony__quote">
+            Go especially when they have deals — great food, great people, easy to order. Everything on the menu will not disappoint. Absolutely recommend.
+          </blockquote>
+          <div class="testimony__meta">
+            <span class="testimony__name">Danny R.</span>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT / SECOND CTA -->
+  <section class="contact-strip section" id="contact">
+    <div class="contact-strip__inner">
+      <div class="contact-strip__headline">
+        Hungry?<br/>
+        <em>Call it in.</em>
+      </div>
+      <div class="contact-strip__right">
+        <a class="contact-strip__phone" href="tel:+13239078047">(323) 907-8047</a>
+        <a class="btn-primary" href="tel:+13239078047">Call Now &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__top">
+        <span class="footer__brand">Tacos Los Cuates</span>
+        <div class="footer__socials">
+          <a
+            class="footer__social-link"
+            href="https://maps.google.com/?cid=12366110964083444934&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA"
+            target="_blank"
+            rel="noopener"
+          >Google Maps</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__credit">
+          Mockup designed by LJ Sites — interested in making this yours?
+          <a href="mailto:jcpeng2002@gmail.com">jcpeng2002@gmail.com</a>
+        </p>
+        <p class="footer__address">
+          5538 Peck Rd · Arcadia, CA 91006<br/>
+          Open nightly 5 PM onwards
+        </p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
